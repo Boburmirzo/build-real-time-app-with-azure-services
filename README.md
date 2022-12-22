@@ -1,17 +1,3 @@
----
-page_type: sample
-languages:
-- java
-- java-script
-products:
-- azure
-- azure-functions
-- azure-event-hubs
-- azure-cosmos-db
-description: "Shows how to use build a real-time event-driven Java solution in Azure."
-urlFragment: "sample"
----
-
 # Build real-time Apps with Azure Functions and SignalR Service
 
 This repo shows with the simple stock price example how to build real-time serverless Java solutions runs only when data changes in an Azure Cosmos DB, broadcast changes to connected web application as a client service using SignalR Service.
