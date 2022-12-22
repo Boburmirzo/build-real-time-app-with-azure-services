@@ -1,0 +1,13 @@
+{
+    "azureFunctions.javaBuildTool": "maven",
+    "azureFunctions.deploySubpath": "start\\serverless/target/azure-functions/event-driven-java-app-azure-producer-app",
+    "azureFunctions.projectLanguage": "Java",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.preDeployTask": "package (functions)",
+    "azureFunctions.projectSubpath": "start\\serverless",
+    "java.project.sourcePaths": [
+        "end\\serverless\\src\\main\\java\\com\\functionend",
+        "end\\serverless\\src"
+    ]
+}
