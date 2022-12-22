@@ -1,37 +1,37 @@
----
-page_type: sample
-languages:
-- java
-products:
-- azure
-- azure-functions
-- azure-event-hubs
-- azure-cosmos-db
-description: "Shows how to use build a real-time event-driven Java solution in Azure."
-urlFragment: "sample"
----
+# Build real-time Apps with Azure Functions and SignalR Service
 
-# Build a real-time event-driven Java solution in Azure
+This repo shows with the simple stock price example how to build real-time serverless Java solutions runs only when data changes in an Azure Cosmos DB, broadcast changes to connected web application as a client service using SignalR Service.
 
-This repo shows wit the simple example how to build serverless Java solutions using the power of serverless event-driven computing, Azure Functions, and send event-based telemetric data in real time to Azure Cosmos DB.
+This sample taken from [Tutorial: Enable automatic updates in a web application using Azure Functions and SignalR Service](https://learn.microsoft.com/en-us/training/modules/automatic-update-of-a-webapp-using-azure-functions-and-signalr/) and modified to 
+use Java programming language to create serverless solutions with Azure Function.
 
-This sample accompanies [Tutorial: Create an Azure function in Java with an Event Hub trigger and Cosmos DB output binding](https://docs.microsoft.com/azure/azure-functions/functions-event-hub-cosmos-db).
+This repo demonstrates followings:
 
-The commands below use a Bash environment. Equivalent commands for the Windows Cmd environment are provided in the tutorial.
+- How to broadcast messages with SignalR Service and Azure Function in serverless.
+- How to build serverless functions using Java that interact with no-sql Azure Cosmos DB.
+- How to integrate SignalR service into the web app using SignalR SDK, JavaScript and Vue.js.
+
+## Branch and project structure
+
+The repo has two branches _before_ and _after_ that shows two scenarios polling-based and push-based respectively to implement automatic updates of the stock price information
 
 ## Prerequisites
 
 * [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli)
-* [Java Developer Kit](https://aka.ms/azure-jdks), version 8
+* [Java Developer Kit](https://aka.ms/azure-jdks), at least version 8
 * [Maven](https://maven.apache.org)
 * [Azure Functions Core Tools](https://www.npmjs.com/package/azure-functions-core-tools)
+* [Node.js](https://nodejs.org/download/)
+* [Visual Studio Code](https://code.visualstudio.com/download)
+* [Azure Functions Core Tools (min. version 2.6.666)]()
+* [Azure Functions extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions)
+* [Azure Storage extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestorage)
 
 ## Setup
 
 You can use the following commands with resource names prepopulated for the demo:
 
 ```bash
-
 ## Create a new Resource Group
 az group create --name real-time-stock-app --location westeurope
 
@@ -46,6 +46,8 @@ az storage account create \
 az cosmosdb create  \
   --name msl-sigr-cosmos-stock \
   --resource-group real-time-stock-app
+
+## Get the connection settings for your cloud services and add to the local settings file
 
 STORAGE_CONNECTION_STRING=$(az storage account show-connection-string \
 --name $(az storage account list \
@@ -95,75 +97,36 @@ SIGNALR_CONNECTION_STRING=$(az signalr key list \
 
 printf "\n\nReplace <SIGNALR_CONNECTION_STRING> with:\n$SIGNALR_CONNECTION_STRING\n\n"
 
-
-
-## Create a new eventhubs namespace
-az eventhubs namespace create --resource-group java-event-based --name device-event-telemetry-ns
-
-## Create a new evenhub inside device-event-telemetry-ns namespace
-az eventhubs eventhub create --resource-group java-event-based --name device-event-hub --namespace-name device-event-telemetry-ns --message-retention 1
- 
-az eventhubs eventhub authorization-rule create --resource-group java-event-based --name device-event-receive-ar --eventhub-name device-event-hub --namespace-name device-event-telemetry-ns --rights Listen Send
-
-az cosmosdb create --resource-group java-event-based --name events-data-account
-
-az cosmosdb sql database create --resource-group java-event-based --account-name events-data-account --name TelemetryDb
- 
-az cosmosdb sql container create --resource-group java-event-based --account-name events-data-account --database-name TelemetryDb --name TelemetryInfo --partition-key-path '/temperatureStatus'
-
-## Storage Account
-
-az storage account create --resource-group java-event-based --name eventsstoragejava --sku Standard_LRS
-
-## Create a new Function APP
- 
-az functionapp create --resource-group java-event-based --name event-trigger-java-func-app --storage-account eventsstoragejava --consumption-plan-location westeurope --runtime java --functions-version 3
-
-## Get the storage account connection string and set it to env variable
-SET AZURE_WEB_JOBS_STORAGE=$(az storage account show-connection-string --name eventsstoragejava --query connectionString --output tsv)
-
-echo $AZURE_WEB_JOBS_STORAGE
-  
-echo $AZURE_WEB_JOBS_STORAGE EVENT_HUB_CONNECTION_STRING=$(az eventhubs eventhub authorization-rule keys list --resource-group java-event-based --name device-event-receive-ar --eventhub-name device-event-hub --namespace-name device-event-telemetry-ns --query primaryConnectionString --output tsv)
-  
-echo $EVENT_HUB_CONNECTION_STRING 
-
-COSMOS_DB_CONNECTION_STRING=$(az cosmosdb keys list --resource-group java-event-based --name events-data-account --type connection-strings --query connectionStrings[0].connectionString --output tsv)
-
-echo $COSMOS_DB_CONNECTION_STRING
-
-## Update the function app's settings with all connection strings
-az functionapp config appsettings set --resource-group java-event-based --name event-trigger-java-func-app --settings AzureWebJobsStorage=$AZURE_WEB_JOBS_STORAGE EventHubConnectionString=$EVENT_HUB_CONNECTION_STRING CosmosDBConnectionString=$COSMOS_DB_CONNECTION_STRING
-
-mvn archetype:generate --batch-mode -DarchetypeGroupId=com.microsoft.azure -DarchetypeArtifactId=azure-functions-archetype -DappName=event-trigger-java-func-app -DresourceGroup=java-event-based -DgroupId=com.example -DartifactId=telemetry-functions
-
-func azure functionapp fetch-app-settings event-trigger-java-func-app
-
-mvn archetype:generate --batch-mode -DarchetypeGroupId=com.microsoft.azure -DarchetypeArtifactId=azure-functions-archetype -DappName=event-trigger-java-func-app -DresourceGroup=java-event-based -DgroupId=com.example -DartifactId=telemetry-functions
-
 ```
 
 ## Running the sample
 
-Run the sample locally:
+To run the sample locally, go to _before_ or _after_ branch:
+
+Navigate to `/serverless` folder:
 
 ``` bash
-mvn clean package
+mvn clean install
 mvn azure-functions:run
 ```
 
-Deploy to Azure:
+The function app startup is shown in a terminal window.
+
+Then, navigate to `/frontend` folder:
 
 ```bash
-mvn azure-functions:deploy
+npm install
+npm start
 ```
+
+The script automatically opens the browser and goes to `http://localhost:8080`.
 
 Clean up Azure resources when you are finished:
 
 ``` bash
-az group delete --name $RESOURCE_GROUP
+az group delete --name real-time-stock-app
 ```
 
 ## Key concepts
 
-For details, see [Tutorial: Create an Azure function in Java with an Event Hub trigger and Cosmos DB output binding](https://docs.microsoft.com/azure/azure-functions/functions-eventhub-cosmosdb).
+For details, see [Tutorial: Enable automatic updates in a web application using Azure Functions and SignalR Service](https://learn.microsoft.com/en-us/training/modules/automatic-update-of-a-webapp-using-azure-functions-and-signalr/).

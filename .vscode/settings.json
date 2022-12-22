@@ -9,5 +9,6 @@
     "java.project.sourcePaths": [
         "end\\serverless\\src\\main\\java\\com\\functionend",
         "end\\serverless\\src"
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
