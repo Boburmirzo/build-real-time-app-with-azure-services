@@ -5,8 +5,13 @@ import java.util.Optional;
 
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.CosmosDBInput;
+import com.microsoft.azure.functions.annotation.CosmosDBTrigger;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
+import com.microsoft.azure.functions.signalr.SignalRConnectionInfo;
+import com.microsoft.azure.functions.signalr.SignalRMessage;
+import com.microsoft.azure.functions.signalr.annotation.SignalRConnectionInfoInput;
+import com.microsoft.azure.functions.signalr.annotation.SignalROutput;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
 import com.microsoft.azure.functions.HttpRequestMessage;
@@ -32,5 +37,28 @@ public class Function {
                                         .body(stockPrices)
                                         .build();
                 }
+        }
+
+        @FunctionName("negotiate")
+        public SignalRConnectionInfo negotiate(
+                        @HttpTrigger(name = "req", methods = {
+                                        HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> req,
+                        @SignalRConnectionInfoInput(name = "connectionInfo", hubName = "stocks", connectionStringSetting = "AzureSignalRConnectionString") SignalRConnectionInfo connectionInfo) {
+
+                return connectionInfo;
+        }
+
+        @FunctionName("stocksChanged")
+        @SignalROutput(name = "$return", hubName = "stocks", connectionStringSetting = "AzureSignalRConnectionString")
+        public SignalRMessage cosmosDbProcessor(
+                        @CosmosDBTrigger(name = "items", databaseName = "stocksdb", collectionName = "stocks", leaseCollectionName = "leases", createLeaseCollectionIfNotExists = true, feedPollDelay = 500, connectionStringSetting = "AzureCosmosDBConnectionString") StockPrice[] stockPrices,
+                        final ExecutionContext context) {
+
+                SignalRMessage message = new SignalRMessage();
+                message.target = "updated";
+                for (StockPrice stockPrice : stockPrices) {
+                        message.arguments.add(stockPrice);
+                }
+                return message;
         }
 }
