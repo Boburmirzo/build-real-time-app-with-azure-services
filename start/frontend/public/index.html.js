@@ -1,9 +1,10 @@
 const LOCAL_BASE_URL = 'http://127.0.0.1:7071';
-const AZURE_BASE_URL = '<FUNCTION_APP_ENDPOINT>';
+const AZURE_BASE_URL = 'https://event-driven-java-stock-app.azurewebsites.net';
 
 const getAPIBaseUrl = () => {
-    const isLocal = /localhost/.test(window.location.href);
-    return isLocal ? LOCAL_BASE_URL : AZURE_BASE_URL;
+    const isLocal = /127.0.0.1/.test(window.location.href);
+    //return isLocal ? LOCAL_BASE_URL : AZURE_BASE_URL;
+    return AZURE_BASE_URL;
 }
 
 const app = new Vue({
