@@ -1,4 +1,4 @@
-const LOCAL_BASE_URL = 'http://localhost:7071';
+const LOCAL_BASE_URL = 'http://127.0.0.1:7071';
 const AZURE_BASE_URL = '<FUNCTION_APP_ENDPOINT>';
 
 const getAPIBaseUrl = () => {
