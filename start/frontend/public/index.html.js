@@ -1,4 +1,4 @@
-const LOCAL_BASE_URL = 'http://localhost:7071';
+const LOCAL_BASE_URL = 'http://127.0.0.1:7071';
 
 const app = new Vue({
     el: '#app',
@@ -20,7 +20,7 @@ const app = new Vue({
             }
         },
         startPoll() {
-            this.interval = setInterval(this.update, 500000);
+            this.interval = setInterval(this.update, 5000);
         }
     },
     created() {
